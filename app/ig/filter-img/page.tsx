@@ -13,6 +13,56 @@ export default function Page() {
   const [errorLines, setErrorLines] = useState<string[]>([]);
 
   // START processing input
+  // const generateThumbnails = async () => {
+  //   const lines = inputValue.trim().split("\n");
+  //   if (!lines.length) return;
+
+  //   setIsLoading(true);
+  //   setProgress(0);
+  //   setErrorLines([]);
+  //   setImages([]);
+
+  //   const parsed: { fullname: string; username: string; id: string; url: string }[] = [];
+  //   const failed: string[] = [];
+
+  //   for (let i = 0; i < lines.length; i++) {
+  //     const line = lines[i];
+  //     const parts = line.split("|");
+
+  //     // simulasi proses async biar progress kelihatan smooth
+  //     await new Promise((r) => setTimeout(r, 50));
+
+  //     if (parts.length === 4) {
+  //       const fullname = parts[0].trim();
+  //       const username = parts[1].trim();
+  //       const id = parts[2].trim();
+  //       const url = parts[3].trim();
+
+  //       if (fullname && username && id && url) parsed.push({ fullname, username, id, url });
+  //       else failed.push(`Baris ${i + 1}: format tidak lengkap`);
+  //     } else {
+  //       failed.push(`Baris ${i + 1}: format tidak valid`);
+  //     }
+
+  //     // update progress setiap baris
+  //     setProgress(Math.round(((i + 1) / lines.length) * 100));
+  //   }
+
+  //   setImages(parsed);
+  //   setErrorLines(failed);
+  //   setIsLoading(false);
+
+  //   if (failed.length) {
+  //     Swal.fire({
+  //       icon: "warning",
+  //       title: "Beberapa data gagal diproses",
+  //       html: `<pre class='text-left text-sm text-red-500'>${failed.join(
+  //         "\n"
+  //       )}</pre>`,
+  //     });
+  //   }
+  // };
+
   const generateThumbnails = async () => {
     const lines = inputValue.trim().split("\n");
     if (!lines.length) return;
@@ -25,12 +75,14 @@ export default function Page() {
     const parsed: { fullname: string; username: string; id: string; url: string }[] = [];
     const failed: string[] = [];
 
+    const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
       const parts = line.split("|");
 
-      // simulasi proses async biar progress kelihatan smooth
-      await new Promise((r) => setTimeout(r, 50));
+      // Staggered delay with small random variation
+      await delay(100 + Math.random() * 100);
 
       if (parts.length === 4) {
         const fullname = parts[0].trim();
@@ -38,13 +90,16 @@ export default function Page() {
         const id = parts[2].trim();
         const url = parts[3].trim();
 
-        if (fullname && username && id && url) parsed.push({ fullname, username, id, url });
-        else failed.push(`Baris ${i + 1}: format tidak lengkap`);
+        if (fullname && username && id && url) {
+          parsed.push({ fullname, username, id, url });
+        } else {
+          failed.push(`Baris ${i + 1}: format tidak lengkap`);
+        }
       } else {
         failed.push(`Baris ${i + 1}: format tidak valid`);
       }
 
-      // update progress setiap baris
+      // Update progress smoothly
       setProgress(Math.round(((i + 1) / lines.length) * 100));
     }
 
@@ -56,9 +111,7 @@ export default function Page() {
       Swal.fire({
         icon: "warning",
         title: "Beberapa data gagal diproses",
-        html: `<pre class='text-left text-sm text-red-500'>${failed.join(
-          "\n"
-        )}</pre>`,
+        html: `<pre class='text-left text-sm text-red-500'>${failed.join("\n")}</pre>`,
       });
     }
   };
@@ -102,7 +155,7 @@ export default function Page() {
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
             Masukkan data dengan format:{" "}
-            <code>username|id|url_gambar</code>
+            <code>fullname|username|id|url_gambar</code>
           </p>
         </header>
 
