@@ -15,7 +15,7 @@ export default function Home() {
   const [currentCheck, setCurrentCheck] = useState("");
   const [progress, setProgress] = useState(0);
 
-  const cekFast = async () => {
+  const getUid = async () => {
     setLoading2(true);
     setLiveResult("");
     setDeadResult("");
@@ -29,45 +29,50 @@ export default function Home() {
       .map((item) => item.trim())
       .filter((item) => item !== "");
 
-    const total = cokisList.length;
     let liveArr: string[] = [];
     let deadArr: string[] = [];
-
     let done = 0;
+    const total = cokisList.length;
 
-    const promises = cokisList.map(async (cokis) => {
-      const trimmed = cokis.trim();
-      const myUser = trimmed.includes("|") ? trimmed.split("|")[0] : trimmed;
+    try {
+      for (let cokis of cokisList) {
+        const trimmed = cokis.trim();
+        const myUser = trimmed.includes("|") ? trimmed.split("|")[0] : trimmed;
 
-      try {
         setCurrentCheck(myUser);
 
-        // const res = await axios.get(`https://graph.facebook.com/${myUser}/picture?type=normal`);
+        try {
+          const res = await axios.get(`/api/cek?username=${myUser}`);
+          const dataUser = res?.data;
+          //console.log(dataUser);
 
-        // if (res.request?.responseURL?.includes("C5yt7Cqf3zU")) {
-        //   deadArr.push(trimmed);
-        // } else {
-        //   liveArr.push(trimmed);
-        // }
+          if (dataUser?.data?.user) {
+            const newFilter = `|${dataUser?.data.user.id}|Following: ${dataUser?.data?.user?.edge_follow?.count}|Follower: ${dataUser?.data?.user?.edge_followed_by?.count}`;
+            liveArr.push(trimmed);
+            setLiveResult((prev) => prev + trimmed + newFilter + "\n");
+            setLiveCount((prev) => prev + 1);
+          } else {
+            deadArr.push(trimmed);
+            setDeadResult((prev) => prev + trimmed + "\n");
+            setDeadCount((prev) => prev + 1);
+          }
 
-      } catch {
-        deadArr.push(trimmed);
-      } finally {
-        done++;
-        setProgress(Math.round((done / total) * 100));
+        } catch {
+          deadArr.push(trimmed);
+          setDeadResult((prev) => prev + trimmed + "\n");
+          setDeadCount((prev) => prev + 1);
+        } finally {
+          done++;
+          setProgress(Math.round((done / total) * 100));
+        }
       }
-    });
 
-    await Promise.all(promises);
-
-    setLiveResult(liveArr.join("\n"));
-    setDeadResult(deadArr.join("\n"));
-    setLiveCount(liveArr.length);
-    setDeadCount(deadArr.length);
-    setCurrentCheck("");
-
-    Swal.fire("Selesai", `Live: ${liveArr.length}, Dead: ${deadArr.length}`, "success");
-    setLoading2(false);
+      Swal.fire("Selesai", `Live: ${liveArr.length}, Dead: ${deadArr.length}`, "success");
+    } catch (error: any) {
+      Swal.fire("Error", `${error.message || 'Terjadi kesalahan saat memproses.'}`, "error");
+    } finally {
+      setLoading2(false);
+    }
   };
 
   const cek = async () => {
@@ -98,7 +103,7 @@ export default function Home() {
 
         try {
           const res = await axios.post('/api/cek',{ user : myUser });
-          console.log(res.data);
+          //console.log(res.data);
 
           if (res?.data?.data?.user) {
             liveArr.push(trimmed);
@@ -121,8 +126,8 @@ export default function Home() {
       }
 
       Swal.fire("Selesai", `Live: ${liveArr.length}, Dead: ${deadArr.length}`, "success");
-    } catch (error) {
-      Swal.fire("Error", "Terjadi kesalahan saat memproses.", "error");
+    } catch (error: any) {
+      Swal.fire("Error", `${error.message || 'Terjadi kesalahan saat memproses.'}`, "error");
     } finally {
       setLoading(false);
     }
@@ -131,8 +136,8 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 p-6">
       <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 bg-center bg-cover bg-no-repeat">
-        <h1 className="text-3xl font-bold text-center mb-6 text-blue-600">
-          Cek Akun Instagram by -ZDEV-
+        <h1 className="text-2xl font-mono text-center mb-6 text-blue-600">
+          Cek Akun Instagram
         </h1>
         <div className="flex flex-col items-center justify-center gap-6">
           {/* Textarea input */}
@@ -154,18 +159,17 @@ export default function Home() {
                   loading || loading2 ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-600"
                 }`}
               >
-                {loading ? "Memproses..." : "Start"}
+                {loading ? "Memproses..." : "Cek Akun"}
               </button>
 
               <button
-                hidden
-                onClick={cekFast}
+                onClick={getUid}
                 disabled={loading || loading2}
                 className={`bg-purple-500 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ${
                   loading || loading2 ? "opacity-50 cursor-not-allowed" : "hover:bg-purple-600"
                 }`}
               >
-                {loading2 ? "Memproses..." : "Cek Akun Fast (max 1000 akun)"}
+                {loading2 ? "Memproses..." : "Filter Akun"}
               </button>
             </div>
 
@@ -224,7 +228,8 @@ export default function Home() {
 
         {/* Footer */}
         <footer className="flex gap-6 flex-wrap items-center justify-center pt-6 border-t border-gray-300 mt-6">
-          <p className="text-cyan-600 text-2xl">Powered by BalaneSohib.team</p>
+          <p className="text-cyan-600 text-sm">Powered by <span className="font-semibold text-indigo-400">BALANE SØHÏB</span>
+            </p> 
         </footer>
       </div>
     </div>

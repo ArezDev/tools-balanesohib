@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 // @ts-ignore: allow importing globals.css without type declarations
-import "./globals.css";
+import "@/app/globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,8 +14,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BALANE SØHÏB",
-  description: "no system is safe",
+  title: "Cek Akun Instagram",
+  description: "by BALANE SØHÏB TEAM",
+  icons: {
+    icon: "/favicon.ico"
+  }
 };
 
 export default function RootLayout({
