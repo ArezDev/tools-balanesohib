@@ -14,6 +14,10 @@ export default function Page() {
 
   const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
+  /**
+   * Ambil thumbnails gambar
+   * @returns 
+   */
   const generateThumbnails = async () => {
     const lines = inputValue.trim().split("\n");
     if (!lines.length) return;
@@ -172,7 +176,7 @@ export default function Page() {
                 <div key={img.id} id={`thumb-${img.id}`} className="relative group border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition">
                   <img
                     id={`img-${img.id}`}
-                    src={`/api/proxy?url=${encodeURIComponent(img.url)}`}
+                    src={`/api/ig/proxy?url=${encodeURIComponent(img.url)}`}
                     alt={`Profile ${img.username}`}
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = "/favicon.ico";

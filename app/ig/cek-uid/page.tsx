@@ -42,7 +42,7 @@ export default function Home() {
         setCurrentCheck(myUser);
 
         try {
-          const res = await axios.get(`/api/cek?username=${myUser}`);
+          const res = await axios.get(`/api/ig/cek?username=${myUser}`);
           const dataUser = res?.data;
           console.log(dataUser);
 
@@ -102,7 +102,7 @@ export default function Home() {
         setCurrentCheck(myUser);
 
         try {
-          const res = await axios.post('/api/cek',{ user : myUser });
+          const res = await axios.post('/api/ig/cek',{ user : myUser });
           console.log(res.data);
 
           if (res?.data?.data?.user) {
